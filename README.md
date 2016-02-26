@@ -1,10 +1,10 @@
-# redux-simplepromise
+# redux-promised
 [FSA](https://github.com/acdlite/flux-standard-action)-compliant promise middleware for redux with optimistic update support, making async data loading in Redux as simple as any other action.
 
 ## Install
 
 ```js
-npm install --save redux-simplepromise
+npm install --save redux-promised
 ```
 
 ## Usage
@@ -13,7 +13,7 @@ First, import the middleware, and pass it as an argument to applyMiddleware.
 
 ```js
 import { createStore, applyMiddleware } from 'redux'
-import promiseMiddleware from 'redux-simplepromise'
+import promiseMiddleware from 'redux-promised'
 import rootReducer from './reducers'
 
 const store = createStore(
@@ -42,7 +42,7 @@ If the Promise is rejected, the action **GET_DATA_FAIL** is dispatched with the 
 The reducer for the **GET_DATA** action could look something like this:
 
 ```js
-import { request, reject, resolve } from 'redux-simplepromise'
+import { request, reject, resolve } from 'redux-promised'
 
 function users(state = {}, action) {
   switch (action.type) {
@@ -69,7 +69,7 @@ function users(state = {}, action) {
 You can also pass the Promise with other values in the payload, and the other values will be passed to the **request** action as **action.payload**, and the **resolve and reject** actions as **action.meta.originalPayload**:
 
 ```js
-import { request, reject, resolve } from 'redux-simplepromise'
+import { request, reject, resolve } from 'redux-promised'
 
 export const getData = () => ({
   type: 'GET_DATA',
@@ -114,12 +114,12 @@ resolve('GET_DATA') === 'GET_DATA'
 
 ### Configuration
 
-You can customize the **request, reject, and resolve suffix's** by importing the middleware creator **simplePromiseMiddleware** instead of the **promiseMiddleware** directly. For example:
+You can customize the **request, reject, and resolve suffix's** by importing the middleware creator **createPromiseMiddleware** instead of the **promiseMiddleware** directly. For example:
 
 ```js
-import { simplePromiseMiddleware } from 'redux-simplepromise'
+import { createPromiseMiddleware } from 'redux-promised'
 
-let promiseMiddleware = simplePromiseMiddleware('_START', '_REJECT', '_RESOLVE')
+let promiseMiddleware = createPromiseMiddleware('_START', '_REJECT', '_RESOLVE')
 ```
 
 Now the **request** and **reject** functions will produce:

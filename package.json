@@ -1,6 +1,6 @@
 {
-  "name": "redux-simplepromise",
-  "version": "1.2.0",
+  "name": "redux-promised",
+  "version": "1.3.0",
   "description": "FSA-compliant promise middleware for redux with optimistic update support.",
   "main": "lib/index.js",
   "files": [
@@ -16,9 +16,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/bobmonteverde/redux-simplepromise.git"
+    "url": "https://github.com/bobmonteverde/redux-promised.git"
   },
-  "homepage": "https://github.com/bobmonteverde/redux-simplepromise",
+  "homepage": "https://github.com/bobmonteverde/redux-promised",
   "keywords": [
     "redux",
     "promise",

@@ -7,7 +7,7 @@ export const request = type => type + requestSuffix
 export const reject = type => type + rejectSuffix
 export const resolve = type => type + resolveSuffix
 
-export const simplePromiseMiddleware = (newRequestSuffix, newRejectSuffix, newResolveSuffix) => {
+export const createPromiseMiddleware = (newRequestSuffix, newRejectSuffix, newResolveSuffix) => {
   requestSuffix = newRequestSuffix || requestSuffix
   rejectSuffix = newRejectSuffix || rejectSuffix
   resolveSuffix = newResolveSuffix || resolveSuffix
@@ -55,4 +55,4 @@ export const simplePromiseMiddleware = (newRequestSuffix, newRejectSuffix, newRe
   }
 }
 
-export default simplePromiseMiddleware()
+export default createPromiseMiddleware()
