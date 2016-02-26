@@ -13,7 +13,9 @@ export const simplePromiseMiddleware = (newRequestSuffix, newRejectSuffix) => {
     return next => action => {
       const { type, payload, meta } = action
 
-      if (!payload || typeof payload.then !== 'function') return next(action)
+      if ((!payload || typeof payload.then !== 'function') && (!payload.promise || typeof payload.promise.then !== 'function') return next(action)
+
+      let promise = typeof payload.then === 'function' ? payload : payload.promise
 
       const SUCCESS = type
       const REQUEST = request(type)
@@ -23,16 +25,21 @@ export const simplePromiseMiddleware = (newRequestSuffix, newRejectSuffix) => {
       if (meta) {
         metaClone.meta = meta
       }
-      next({ ...metaClone, type: REQUEST })
+      let payloadClone = {}
+      if (promise !== payload) {
+        payloadClone.payload = { ...payload }
+        delete payloadClone.payload.promise
+      }
+      next({ ...metaClone, ...payloadClone, type: REQUEST })
 
-      return payload
+      return promise
         .then(
           result => {
             next({ ...metaClone, payload: result, type: SUCCESS })
             return result
           },
           error => {
-            next({ ...metaClone, error, type: FAILURE })
+            next({ ...metaClone, ...payloadClone, error, type: FAILURE })
             return error
           }
         )
