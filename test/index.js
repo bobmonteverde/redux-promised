@@ -73,6 +73,29 @@ describe('promiseMiddleware', () => {
     })
   })
 
+  it('dispatches request action with arguments when promise passed in as payload.promise', () => {
+    dispatch({
+      type: 'ACTION_TYPE',
+      payload: {
+        promise: new Promise(() => {}),
+        foo1: 'bar1'
+      },
+      meta: {
+        foo2: 'bar2'
+      }
+    })
+
+    expect(baseDispatch.calledOnce).to.be.true
+
+    expect(baseDispatch.firstCall.args[0]).to.deep.equal({
+      type: request('ACTION_TYPE'),
+      payload: { foo1: 'bar1' },
+      meta: {
+        foo2: 'bar2'
+      }
+    })
+  })
+
   it('dispatches resolve action with arguments', async function () {
     await dispatch({
       type: 'ACTION_TYPE',
@@ -93,7 +116,7 @@ describe('promiseMiddleware', () => {
     })
   })
 
-  it('dispatches promise passed in as payload.promise', async function () {
+  it('dispatches resolved promise when promise passed in as payload.promise', async function () {
     await dispatch({
       type: 'ACTION_TYPE',
       payload: {
@@ -108,7 +131,7 @@ describe('promiseMiddleware', () => {
     expect(baseDispatch.calledTwice).to.be.true
 
     expect(baseDispatch.secondCall.args[0]).to.deep.equal({
-      type: 'ACTION_TYPE',
+      type: resolve('ACTION_TYPE'),
       payload: foobar,
       meta: {
         foo2: 'bar2',

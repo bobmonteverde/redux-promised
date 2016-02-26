@@ -26,7 +26,7 @@ export const simplePromiseMiddleware = (newRequestSuffix, newRejectSuffix, newRe
 
       let metaClone = {}
       if (meta) {
-        metaClone.meta = meta
+        metaClone.meta = { ...meta }
       }
       let payloadClone = {}
       if (promise !== payload) {
