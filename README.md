@@ -4,7 +4,7 @@
 ## Install
 
 ```js
-npm install --save redux-simlepromise
+npm install --save redux-simplepromise
 ```
 
 ## Usage
