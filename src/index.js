@@ -35,14 +35,15 @@ export const simplePromiseMiddleware = (newRequestSuffix, newRejectSuffix, newRe
       }
       next({ ...metaClone, ...payloadClone, type: REQUEST })
 
+      metaClone.meta.originalPayload = payloadClone
       return promise
         .then(
           result => {
-            next({ ...metaClone, payload: result, type: SUCCESS })
+            dispatch({ ...metaClone, payload: result, type: SUCCESS })
             return result
           },
           error => {
-            next({ ...metaClone, ...payloadClone, error, type: FAILURE })
+            dispatch({ ...metaClone, error, type: FAILURE })
             return error
           }
         )
