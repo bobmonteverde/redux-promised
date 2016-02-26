@@ -1,6 +1,6 @@
 {
   "name": "redux-simplepromise",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "FSA-compliant promise middleware for redux with optimistic update support.",
   "main": "lib/index.js",
   "files": [
