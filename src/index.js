@@ -1,23 +1,26 @@
 
 let requestSuffix = '_REQUEST'
 let rejectSuffix = '_FAIL'
+let resolveSuffix = ''
 
 export const request = type => type + requestSuffix
 export const reject = type => type + rejectSuffix
+export const resolve = type => type + resolveSuffix
 
-export const simplePromiseMiddleware = (newRequestSuffix, newRejectSuffix) => {
+export const simplePromiseMiddleware = (newRequestSuffix, newRejectSuffix, newResolveSuffix) => {
   requestSuffix = newRequestSuffix || requestSuffix
   rejectSuffix = newRejectSuffix || rejectSuffix
+  resolveSuffix = newResolveSuffix || resolveSuffix
 
   return function promiseMiddleware ({ dispatch }) {
     return next => action => {
       const { type, payload, meta } = action
 
-      if ((!payload || typeof payload.then !== 'function') && (!payload.promise || typeof payload.promise.then !== 'function') return next(action)
+      if (!payload || typeof payload.then !== 'function' && (!payload.promise || typeof payload.promise.then !== 'function')) return next(action)
 
       let promise = typeof payload.then === 'function' ? payload : payload.promise
 
-      const SUCCESS = type
+      const SUCCESS = resolve(type)
       const REQUEST = request(type)
       const FAILURE = reject(type)
 
