@@ -75,7 +75,7 @@ reject('GET_DATA') === 'GET_DATA_FAIL'
 
 ### Configuration
 
-You can customize the **request** and reject suffix's** by importing the middleware creator **simplePromiseMiddleware** instead of the **promiseMiddleware** directly. For example:
+You can customize the **request and reject suffix's** by importing the middleware creator **simplePromiseMiddleware** instead of the **promiseMiddleware** directly. For example:
 
 ```js
 import { simplePromiseMiddleware } from 'redux-simplepromise'
