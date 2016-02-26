@@ -1,21 +1,26 @@
 
 let requestSuffix = '_REQUEST'
 let rejectSuffix = '_FAIL'
+let resolveSuffix = ''
 
 export const request = type => type + requestSuffix
 export const reject = type => type + rejectSuffix
+export const resolve = type => type + resolveSuffix
 
-export const simplePromiseMiddleware = (newRequestSuffix, newRejectSuffix) => {
+export const simplePromiseMiddleware = (newRequestSuffix, newRejectSuffix, newResolveSuffix) => {
   requestSuffix = newRequestSuffix || requestSuffix
   rejectSuffix = newRejectSuffix || rejectSuffix
+  resolveSuffix = newResolveSuffix || resolveSuffix
 
   return function promiseMiddleware ({ dispatch }) {
     return next => action => {
       const { type, payload, meta } = action
 
-      if (!payload || typeof payload.then !== 'function') return next(action)
+      if (!payload || typeof payload.then !== 'function' && (!payload.promise || typeof payload.promise.then !== 'function')) return next(action)
 
-      const SUCCESS = type
+      let promise = typeof payload.then === 'function' ? payload : payload.promise
+
+      const SUCCESS = resolve(type)
       const REQUEST = request(type)
       const FAILURE = reject(type)
 
@@ -23,16 +28,26 @@ export const simplePromiseMiddleware = (newRequestSuffix, newRejectSuffix) => {
       if (meta) {
         metaClone.meta = meta
       }
-      next({ ...metaClone, type: REQUEST })
+      let payloadClone = {}
+      if (promise !== payload) {
+        payloadClone.payload = { ...payload }
+        delete payloadClone.payload.promise
+      }
 
-      return payload
+      next({ ...metaClone, ...payloadClone, type: REQUEST })
+
+      if (promise !== payload) {
+        metaClone.meta = meta || {}
+        metaClone.meta.originalPayload = payloadClone.payload
+      }
+      return promise
         .then(
           result => {
-            next({ ...metaClone, payload: result, type: SUCCESS })
+            dispatch({ ...metaClone, payload: result, type: SUCCESS })
             return result
           },
           error => {
-            next({ ...metaClone, error, type: FAILURE })
+            dispatch({ ...metaClone, error, type: FAILURE })
             return error
           }
         )
