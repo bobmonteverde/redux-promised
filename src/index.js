@@ -33,9 +33,13 @@ export const simplePromiseMiddleware = (newRequestSuffix, newRejectSuffix, newRe
         payloadClone.payload = { ...payload }
         delete payloadClone.payload.promise
       }
+
       next({ ...metaClone, ...payloadClone, type: REQUEST })
 
-      metaClone.meta.originalPayload = payloadClone
+      if (promise !== payload) {
+        metaClone.meta = meta || {}
+        metaClone.meta.originalPayload = payloadClone.payload
+      }
       return promise
         .then(
           result => {

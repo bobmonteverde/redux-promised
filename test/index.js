@@ -2,7 +2,7 @@ import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 import { spy } from 'sinon'
 import promiseMiddleware from '../src'
-import { request, reject } from '../src'
+import { request, reject, resolve } from '../src'
 import 'babel-polyfill'
 
 global.expect = chai.expect
@@ -19,9 +19,10 @@ function metaMiddleware () {
 }
 
 describe('before promiseMiddleware is called', () => {
-  it('returns the reject and resolve strings with default values', () => {
+  it('returns the request, reject, and resolve strings with default values', () => {
     expect(request('MY_ACTION')).to.equal('MY_ACTION_REQUEST')
     expect(reject('MY_ACTION')).to.equal('MY_ACTION_FAIL')
+    expect(resolve('MY_ACTION')).to.equal('MY_ACTION')
   })
 })
 
@@ -40,7 +41,7 @@ describe('promiseMiddleware', () => {
     foobar = { foo: 'bar' }
     err = new Error()
   })
-  it('dispatches first action before promise without arguments', () => {
+  it('dispatches request action before promise without arguments', () => {
     dispatch({
       type: 'ACTION_TYPE',
       payload: new Promise(() => {})
@@ -53,7 +54,7 @@ describe('promiseMiddleware', () => {
     })
   })
 
-  it('dispatches first action before promise with arguments', () => {
+  it('dispatches request action before promise with arguments', () => {
     dispatch({
       type: 'ACTION_TYPE',
       payload: new Promise(() => {}),
@@ -92,6 +93,32 @@ describe('promiseMiddleware', () => {
     })
   })
 
+  it('dispatches promise passed in as payload.promise', async function () {
+    await dispatch({
+      type: 'ACTION_TYPE',
+      payload: {
+        promise: Promise.resolve(foobar),
+        foo1: 'bar1'
+      },
+      meta: {
+        foo2: 'bar2'
+      }
+    })
+
+    expect(baseDispatch.calledTwice).to.be.true
+
+    expect(baseDispatch.secondCall.args[0]).to.deep.equal({
+      type: 'ACTION_TYPE',
+      payload: foobar,
+      meta: {
+        foo2: 'bar2',
+        originalPayload: {
+          foo1: 'bar1'
+        }
+      }
+    })
+  })
+
   it('dispatches reject action with arguments', async function () {
     await dispatch({
       type: 'ACTION_TYPE',
@@ -110,6 +137,34 @@ describe('promiseMiddleware', () => {
       meta: {
         foo3: 'bar3',
         foo4: 'bar4'
+      }
+    })
+  })
+
+  it('dispatches reject action with originalPayload when payload.promise', async function () {
+    await dispatch({
+      type: 'ACTION_TYPE',
+      payload: {
+        promise: Promise.reject(err),
+        foo1: 'bar1'
+      },
+      meta: {
+        foo2: 'bar2',
+        foo3: 'bar3'
+      }
+    })
+
+    expect(baseDispatch.calledTwice).to.be.true
+
+    expect(baseDispatch.secondCall.args[0]).to.deep.equal({
+      type: reject('ACTION_TYPE'),
+      error: err,
+      meta: {
+        foo2: 'bar2',
+        foo3: 'bar3',
+        originalPayload: {
+          foo1: 'bar1'
+        }
       }
     })
   })
