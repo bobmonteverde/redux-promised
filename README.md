@@ -4,7 +4,7 @@
 ## Install
 
 ```js
-npm install --save redux-promise
+npm install --save redux-simplepromise
 ```
 
 ## Usage
@@ -42,11 +42,11 @@ If the Promise is rejected, the action **GET_DATA_FAIL** is dispatched with the 
 The reducer for the **GET_DATA** action could look something like this:
 
 ```js
-import { request, reject } from 'redux-simplepromise'
+import { request, reject, resolve } from 'redux-simplepromise'
 
 function users(state = {}, action) {
   switch (action.type) {
-    case 'GET_DATA':
+    case resolve('GET_DATA'): // defaults to 'GET_DATA'
       return Object.assign({}, state, {
         data: action.payload,
         isFetchingData: false
@@ -66,21 +66,60 @@ function users(state = {}, action) {
 }
 ```
 
-The helper functions **request** and **reject** simply add the appropriate suffix to the action's type.  By default:
+You can also pass the Promise with other values in the payload, and the other values will be passed to the **request** action as **action.payload**, and the **resolve and reject** actions as **action.meta.originalPayload**:
+
+```js
+import { request, reject, resolve } from 'redux-simplepromise'
+
+export const getData = () => ({
+  type: 'GET_DATA',
+  payload: {
+    promise: fetch(data_API_URL, { method: 'GET' }),
+    dataType: 'users'
+  }
+})
+
+function users(state = {}, action) {
+  switch (action.type) {
+    case resolve('GET_DATA'):
+      return Object.assign({}, state, {
+        data: action.payload,
+        isFetchingData: false,
+        type: action.meta.originalPayload.dataType
+      })
+    case request('GET_DATA'):
+      return Object.assign({}, state, {
+        isFetchingData: true,
+        type: action.payload.dataType
+      })
+    case reject('GET_DATA'):
+      return Object.assign({}, state, {
+        dataError: action.error,
+        isFetchingData: false,
+        type: action.meta.originalPayload.dataType
+      })
+    default:
+      return state
+  }
+}
+```
+
+The helper functions **request** , **reject**, and **resolve** simply add the appropriate suffix to the action's type.  By default:
 
 ```js
 request('GET_DATA') === 'GET_DATA_REQUEST'
 reject('GET_DATA') === 'GET_DATA_FAIL'
+resolve('GET_DATA') === 'GET_DATA'
 ```
 
 ### Configuration
 
-You can customize the **request** and reject suffix's** by importing the middleware creator **simplePromiseMiddleware** instead of the **promiseMiddleware** directly. For example:
+You can customize the **request, reject, and resolve suffix's** by importing the middleware creator **simplePromiseMiddleware** instead of the **promiseMiddleware** directly. For example:
 
 ```js
 import { simplePromiseMiddleware } from 'redux-simplepromise'
 
-let promiseMiddleware = simplePromiseMiddleware('_START', '_REJECT')
+let promiseMiddleware = simplePromiseMiddleware('_START', '_REJECT', '_RESOLVE')
 ```
 
 Now the **request** and **reject** functions will produce:
@@ -88,6 +127,7 @@ Now the **request** and **reject** functions will produce:
 ```js
 request('GET_DATA') === 'GET_DATA_START'
 reject('GET_DATA') === 'GET_DATA_REJECT'
+resolve('GET_DATA') === 'GET_DATA_RESOLVE'
 ```
 
 All actions meet the [FSA](https://github.com/acdlite/flux-standard-action) standards.
