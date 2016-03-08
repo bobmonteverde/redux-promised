@@ -35,7 +35,7 @@ export const getData = () => ({
 
 Redux actions with a promise as their payload are split into separate actions that can be handled synchronously.
 
-Immediately after calling **getData**, an action with the type **GET_DATA_REQUEST** is dispatched, before the promise is resolved (this action has no payload, but anything passed in the original action's **meta** key will be passed with the action. This allows for optimistic updates, or to set an **isLoading** value in the state.
+Immediately after calling **getData**, an action with the type **GET_DATA_REQUEST** is dispatched, before the promise is resolved (this action has the promise removed from payload, but anything passed in the original action's **meta** key will be passed with the action. This allows for optimistic updates, or to set an **isLoading** value in the state.
 If the promise is successfully resolved, the action **GET_DATA** is dispatched with the resolved value as it's payload.
 If the Promise is rejected, the action **GET_DATA_FAIL** is dispatched with the **Error object** provided in action's **error** key.
 
